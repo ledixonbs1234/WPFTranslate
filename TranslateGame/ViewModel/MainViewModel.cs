@@ -180,6 +180,7 @@ namespace TranslateGame.ViewModel
             if (Texts.Count - 1 > indexSelect)
             {
                 SelectText = Texts[indexSelect + 1];
+                string s = "texs";
             }
             // auto save
             if (CountToSave >= 5)
