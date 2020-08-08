@@ -1,5 +1,6 @@
 ﻿using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
+using GalaSoft.MvvmLight.Messaging;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -1028,6 +1029,7 @@ namespace TranslateGame.ViewModel
                 {
                     return;
                 }
+                Messenger.Default.Send<bool>(value, "onChangedWordForAll");
 
                 _isWorkForAll = value;
                 RaisePropertyChanged(WorkForAllPropertyName);

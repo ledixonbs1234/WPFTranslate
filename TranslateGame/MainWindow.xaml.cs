@@ -23,7 +23,23 @@ namespace TranslateGame
             Messenger.Default.Register<string>(this,"Dofocus", doFocus);
             Messenger.Default.Register<string>(this, "DoIsFocusFind", checkFocusFind);
             Messenger.Default.Register<TextModel>(this, "doScrollToView", doScrollToView);
+            Messenger.Default.Register<bool>(this, "onChangedWordForAll", onChangedWordForAll);
 
+        }
+        private void onChangedWordForAll(bool isChanged)
+        {
+            if (isChanged)
+            {
+                txtTranslate.Foreground = Brushes.Red;
+                btnNhap.Background = Brushes.Red;
+                btnConvert.Background = Brushes.Red;
+            }
+            else
+            {
+                txtTranslate.Foreground = (Brush)new BrushConverter().ConvertFrom("#FF535353");
+                btnNhap.Background = (Brush)new BrushConverter().ConvertFrom("#FF4E96FF");
+                btnConvert.Background = (Brush)new BrushConverter().ConvertFrom("#FF4E96FF");
+            }
         }
 
         private void doScrollToView(TextModel obj)

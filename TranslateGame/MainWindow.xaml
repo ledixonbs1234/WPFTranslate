@@ -40,7 +40,7 @@
                             PassEventArgsToCommand="True" />
         </i:EventTrigger>
     </i:Interaction.Triggers>
-
+    <!--
     <Grid x:Name="LayoutRoot">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="207" />
@@ -244,5 +244,164 @@
         <Label x:Name="label4" Content="Find Text" HorizontalAlignment="Left" Margin="100.5,14,0,0" VerticalAlignment="Top" Height="23" Width="75" Grid.Column="1" />
         <CheckBox x:Name="checkBox1" Content="" HorizontalAlignment="Left" Margin="2,65,0,0" VerticalAlignment="Top" IsChecked="{Binding IsSaveAll}" />
         <CheckBox x:Name="checkBox1_Copy" Content="" HorizontalAlignment="Left" Margin="18,65,0,0" VerticalAlignment="Top" IsChecked="{Binding IsConvertAll}" />
+    </Grid>-->
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="160"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <TextBlock Panel.ZIndex="1" Text="Translate App" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" FontSize="18" Foreground="White"/>
+        <Rectangle Fill="#FF2E92F3" />
+        <StackPanel Grid.Row="1" Background="#FFFAFAFA">
+            <Button Cursor="Hand" Content="Open File" Style="{DynamicResource ButtonMenuStyle}" FontFamily="PT Mono" Background="#FFC52525" Command="{Binding OpenFileCommand, Mode=OneWay}" />
+            <Button Cursor="Hand" Content="Load Data" Style="{DynamicResource ButtonMenuStyle}" FontFamily="PT Mono" Command="{Binding LoadDataCommand, Mode=OneWay}" />
+            <Rectangle Height="1" Fill="#FFE46060" />
+            <Button  Cursor="Hand" Style="{DynamicResource ButtonMenuStyle}" FontFamily="PT Mono" Background="Black" Command="{Binding FindTextChinaCommand, Mode=OneWay}" >
+                <TextBlock>Find Text<LineBreak/>China</TextBlock>
+            </Button>
+            <Rectangle Height="1" Fill="#FFE46060" />
+            <Button  Cursor="Hand" Style="{DynamicResource ButtonMenuStyle}" FontFamily="PT Mono" Background="Black" Command="{Binding SettingGoogleCommand, Mode=OneWay}" >
+                <TextBlock>Setting<LineBreak/>Google</TextBlock>
+            </Button>
+            <Button x:Name="txtTranslate" Cursor="Hand" Content="Translate" Style="{DynamicResource ButtonMenuStyle}" FontFamily="PT Mono" Background="Black" Command="{Binding TranslateCommand, Mode=OneWay}" />
+            <Rectangle Height="1" Fill="#FFE46060" />
+            <Button Cursor="Hand" Style="{DynamicResource ButtonMenuStyle}" FontFamily="PT Mono" Background="Black" Command="{Binding ConvertToFileCommand, Mode=OneWay}" >
+                <TextBlock Foreground="#FF3E61FF" FontWeight="Bold">Convert<LineBreak/>To File</TextBlock>
+            </Button>
+        </StackPanel>
+        <DockPanel   Grid.Column="1" Background="#FAFAFA">
+            <Button DockPanel.Dock="Right" Width="120" Height="38" Margin="5" Background="#FF4E96FF" FontWeight="Bold" FontSize="16" BorderBrush="#FF4E96FF" Content="Save Data" Command="{Binding SaveDataCommand, Mode=OneWay}"/>
+            <StackPanel DockPanel.Dock="Right" Orientation="Vertical" Margin="5">
+                <TextBlock Text="Work To All" FontSize="16" Margin="0,0,0,5"/>
+                <ToggleButton IsChecked="{Binding IsWorkForAll}" Background="Red" Foreground="Red"/>
+            </StackPanel>
+            <TextBox x:Name="txtFind" Padding="5,0" FontSize="16"  Text="{Binding TextForFind}" VerticalContentAlignment="Center" ToolTip="Find.." ></TextBox>
+        </DockPanel>
+        <Grid x:Name="MainGrid" Grid.Column="1" Grid.Row="1" Background="#E0E5EC">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="471*"/>
+                <RowDefinition Height="322*"/>
+                <RowDefinition Height="30"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="167*"/>
+                <ColumnDefinition Width="318*"/>
+            </Grid.ColumnDefinitions>
+            <ListBox Margin="15" SelectedItem="{Binding JsonSelected}" ItemsSource="{Binding Jsons}" Background="#FFFBFBFB">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <CheckBox IsEnabled="True" IsChecked="{Binding IsChangeJson,Mode=TwoWay}" FontSize="14" />
+                            <CheckBox FontSize="14" IsEnabled="True" IsChecked="{Binding IsChangeTxt,Mode=TwoWay}" />
+                            <TextBlock Text="{Binding Name}" FontSize="14" FontStyle="Normal" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+            <DataGrid Margin="15" x:Name="dataGrid" HorizontalGridLinesBrush="#FFEADEFF" VerticalGridLinesBrush="#FFEADEFF" ItemsSource="{Binding Texts}" AutoGenerateColumns="False" RowHeight="35" FontSize="16" CellStyle="{DynamicResource DataGridContentCellCentering}" Background="#FFFBFBFB" Foreground="#FF7A7A7A" SelectedItem="{Binding SelectText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1">
+                <DataGrid.Resources>
+                    <Style TargetType="{x:Type DataGridRow}">
+                        <Style.Resources>
+                            <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Transparent" />
+                            <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="Transparent" />
+                            <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="Black" />
+                            <SolidColorBrush x:Key="{x:Static SystemColors.ControlTextBrushKey}" Color="Black" />
+                        </Style.Resources>
+                        <Style.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Background" Value="Pink" />
+                                <Setter Property="Foreground" Value="White" />
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </DataGrid.Resources>
+                <DataGrid.ColumnHeaderStyle>
+                    <Style TargetType="{x:Type DataGridColumnHeader}">
+                        <Setter Property="Padding" Value="10" />
+                        <Setter Property="FontSize" Value="18" />
+                        <Setter Property="Foreground" Value="#FFFDFDFD" />
+                        <Setter Property="HorizontalContentAlignment" Value="Center" />
+                        <Setter Property="Background">
+                            <Setter.Value>
+                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                    <GradientStop Color="#2193b0" Offset="0" />
+                                    <GradientStop Color="#6dd5ed" Offset="1" />
+                                </LinearGradientBrush>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </DataGrid.ColumnHeaderStyle>
+                <DataGrid.Columns>
+                    <DataGridTextColumn MinWidth="50"  Header="Stt" Binding="{Binding STT}"  FontWeight="Bold" FontFamily="Times New Roman" />
+                    <DataGridTextColumn Header="Viet Text" MinWidth="200" MaxWidth="300" Binding="{Binding VietText, UpdateSourceTrigger=PropertyChanged}" />
+                    <DataGridTextColumn Header="China Text" MaxWidth="200" Binding="{Binding ChinaText}" FontFamily="Times New Roman" />
+                </DataGrid.Columns>
+            </DataGrid>
+            <TabControl Grid.ColumnSpan="2" Grid.Row="1" Margin="15">
+                <TabItem Header="Edit Text">
+                    <Grid >
+                        <Button x:Name="button_Copy9" Content="Sample text (F4)" HorizontalAlignment="Left" Margin="117,62,0,0" VerticalAlignment="Top" Width="144" Height="38" Command="{Binding SampletextCommand, Mode=OneWay}" Background="White" BorderBrush="{x:Null}" Foreground="#FF2D527C" FontSize="14" Style="{DynamicResource ButtonOnlyText}" />
+                        <Button x:Name="button_Copy10" Content="Sample Text (F5)" HorizontalAlignment="Left" Margin="309,62,0,0" VerticalAlignment="Top" Width="137" Height="38" Command="{Binding SampleTextCommand, Mode=OneWay}" Background="White" BorderBrush="{x:Null}" Foreground="#FF2D527C" FontSize="14" Style="{DynamicResource ButtonOnlyText}" />
+                        <Button x:Name="button_Copy11" Content="SAMPLE TEXT (F6)" HorizontalAlignment="Left" Margin="500,62,0,0" VerticalAlignment="Top" Width="147" Height="38" Command="{Binding SAMPLETEXTCommand, Mode=OneWay}" Background="White" BorderBrush="{x:Null}" Foreground="#FF2D527C" FontSize="14" Style="{DynamicResource ButtonOnlyText}" />
+                        <Button x:Name="btnNhap" Content="Nhap" HorizontalAlignment="Left" Height="37" Margin="722,10,0,0" VerticalAlignment="Top" Width="76" BorderBrush="#FF4E96FF" Background="#FF4E96FF" />
+                        <TextBox x:Name="txtNhap" HorizontalAlignment="Left" Height="28" Margin="14,19,0,0" TextWrapping="Wrap" Text="{Binding SelectText.VietText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top" Width="690" FontSize="15" />
+                        <Label x:Name="label1" Content="VietPhare (F8)" HorizontalAlignment="Left" Margin="10,121,0,0" VerticalAlignment="Top" FontWeight="Bold" Height="23" Width="118" />
+                        <TextBlock x:Name="textBlock" HorizontalAlignment="Left" Margin="140,123,0,0" TextWrapping="Wrap" Text="{Binding SelectText.VietPharseText}" VerticalAlignment="Top" Foreground="#FF2A259B" FontSize="16" Height="18" />
+                        <Label x:Name="label1_Copy" Content="Han Viet (F9)" HorizontalAlignment="Left" Margin="10,155,0,0" VerticalAlignment="Top" FontWeight="Bold" Height="23" Width="111" />
+                        <TextBlock  x:Name="textBlock_Copy" HorizontalAlignment="Left" Margin="140,157,0,0" TextWrapping="Wrap" Text="{Binding SelectText.HanVietText}" VerticalAlignment="Top" Foreground="#FF7B76EC" FontSize="16" Height="18" />
+                        <Label x:Name="label1_Copy1" Content="Google (F10)" HorizontalAlignment="Left" Margin="10,190,0,0" VerticalAlignment="Top" FontWeight="Bold" Foreground="Black" Height="23" Width="96" />
+                        <TextBlock x:Name="textBlock_Copy1" HorizontalAlignment="Left" Margin="140,192,0,0" TextWrapping="Wrap" Text="{Binding SelectText.GoogleText}" VerticalAlignment="Top" Foreground="#FF9B2525" FontSize="16" Height="18" />
+                    </Grid>
+
+                </TabItem>
+                <TabItem Header="Convert Text">
+                    <Grid >
+                        <RadioButton x:Name="checkBox" GroupName="textoption" Content="Sampletext" HorizontalAlignment="Left" Margin="11,10,0,0" VerticalAlignment="Top" FontSize="15" IsChecked="{Binding CheckBoxGroup.IsSampletext}" Background="#FF4E96FF" BorderBrush="#FF4E96FF" />
+                        <RadioButton x:Name="checkBox_Copy"  GroupName="textoption"  Content="SampleText" HorizontalAlignment="Left" Margin="157,10,0,0" VerticalAlignment="Top" FontSize="15" IsChecked="{Binding CheckBoxGroup.IsSampleText}" Background="#FF4E96FF" BorderBrush="#FF4E96FF" />
+                        <RadioButton x:Name="checkBox_Copy1"  GroupName="textoption"  Content="SAMPLETEXT" HorizontalAlignment="Left" Margin="319,10,0,0" VerticalAlignment="Top" FontSize="15" IsChecked="{Binding CheckBoxGroup.IsSAMPLETEXT}" Background="#FF4E96FF" BorderBrush="#FF4E96FF" />
+                        <RadioButton x:Name="checkBox_Copy2" GroupName="language" Content="VietPhare" HorizontalAlignment="Left" Margin="10,46,0,0" VerticalAlignment="Top" FontSize="15" IsChecked="{Binding CheckBoxGroup.IsVietPhare}" Background="#FF4E96FF" BorderBrush="#FF4E96FF" />
+                        <RadioButton x:Name="checkBox_Copy3" GroupName="language"  Content="HanViet" HorizontalAlignment="Left" Margin="157,46,0,0" VerticalAlignment="Top" FontSize="15" IsChecked="{Binding CheckBoxGroup.IsHanViet}" Background="#FF4E96FF" BorderBrush="#FF4E96FF" />
+                        <RadioButton x:Name="checkBox_Copy4" GroupName="language"  Content="Google" HorizontalAlignment="Left" Margin="319,46,0,0" VerticalAlignment="Top" FontSize="15" IsChecked="{Binding CheckBoxGroup.IsGoogle}" Background="#FF4E96FF" BorderBrush="#FF4E96FF" />
+                        <Label x:Name="label2" Content="Press Shift + Enter to Work" HorizontalAlignment="Left" Margin="104,104,0,0" VerticalAlignment="Top" Width="207" />
+                        <Button x:Name="btnConvert" Content="Convert" HorizontalAlignment="Left" Margin="147,134,0,0" VerticalAlignment="Top" Width="108" Height="60" Command="{Binding ConvertOptionCommand, Mode=OneWay}" Background="#FF4E96FF" FontSize="16" BorderBrush="#FF4E96FF" />
+                        <ComboBox x:Name="comboBox" SelectedItem="{Binding FromSelect}" HorizontalAlignment="Left" Margin="104,75.5,0,0" VerticalAlignment="Top" Width="75" ItemsSource="{Binding Texts}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding STT}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        <Label x:Name="label3" Content="From" HorizontalAlignment="Left" Margin="46,75.5,0,0" VerticalAlignment="Top" />
+                        <ComboBox x:Name="comboBox_Copy" SelectedItem="{Binding ToSelect}" HorizontalAlignment="Left" Margin="287,75.5,0,0" VerticalAlignment="Top" Width="75" ItemsSource="{Binding Texts}" RenderTransformOrigin="0.72,0.96">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding STT}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        <Label x:Name="label3_Copy" Content="To" HorizontalAlignment="Left" Margin="247,75.5,0,0" VerticalAlignment="Top" />
+                    </Grid>
+                </TabItem>
+                <TabItem Header="Save Option">
+                    <Grid>
+                        <CheckBox x:Name="checkBox1" Content="Check All To Save Data" HorizontalAlignment="Left" Margin="22,29,0,0" VerticalAlignment="Top" IsChecked="{Binding IsSaveAll}" />
+                        <CheckBox x:Name="checkBox1_Copy" Content="Check All To Convert Json" HorizontalAlignment="Left" Margin="23,65,0,0" VerticalAlignment="Top" IsChecked="{Binding IsConvertAll}" />
+                    </Grid>
+
+                </TabItem>
+            </TabControl>
+            <StackPanel Grid.Row="2" Orientation="Horizontal" Grid.ColumnSpan="5">
+                <Label x:Name="label" HorizontalAlignment="Center" Content="File da chon:" FontSize="14" />
+                <TextBlock Text="{Binding CountFile}" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#FF00A0FB" Margin="0,4,0,7" />
+                <Label Foreground="#FF616161" FontWeight="Bold" FontSize="16" Margin="40,0,0,0" Padding="5,3,5,5" Content="|" />
+                <TextBlock Text="{Binding Message}" />
+            </StackPanel>
+
+
+        </Grid>
     </Grid>
 </Window>
