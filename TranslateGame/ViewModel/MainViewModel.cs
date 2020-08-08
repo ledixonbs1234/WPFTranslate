@@ -222,6 +222,35 @@ namespace TranslateGame.ViewModel
             SelectText.VietText = this.SelectText.VietPharseText;
             OnRefreshUI();
         }
+        /// <summary>
+        /// The <see cref="SelectNhap" /> property's name.
+        /// </summary>
+        public const string SelectNhapPropertyName = "SelectNhap";
+
+        private string _selectNhap = "";
+
+        /// <summary>
+        /// Sets and gets the SelectNhap property.
+        /// Changes to that property's value raise the PropertyChanged event. 
+        /// </summary>
+        public string SelectNhap
+        {
+            get
+            {
+                return _selectNhap;
+            }
+
+            set
+            {
+                if (_selectNhap == value)
+                {
+                    return;
+                }
+
+                _selectNhap = value;
+                RaisePropertyChanged(SelectNhapPropertyName);
+            }
+        }
 
         private void Worker_DoWork(object sender, DoWorkEventArgs e)
         {
