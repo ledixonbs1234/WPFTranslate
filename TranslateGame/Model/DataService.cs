@@ -270,13 +270,14 @@ namespace TranslateGame.Model
                 callback(null);
         }
 
-        public void ConvertListJsonToFiles(List<JsonModel> jsonNeedSaved)
+        public void ConvertListJsonToFiles(List<JsonModel> jsonNeedSaved, Action<string> callback)
         {
             string contentFile = "";
             int count = 0;
             string pathFile = "";
             foreach (JsonModel json in jsonNeedSaved)
             {
+                callback(json.Name);
                 pathFile = json.ListText[0].FullPath;
                 contentFile = File.ReadAllText(pathFile);
                 count = 0;
@@ -286,7 +287,7 @@ namespace TranslateGame.Model
                     if (!string.IsNullOrEmpty(text.VietText))
                     {
                         contentFile = contentFile.Remove(text.StartIndex + count, text.ChinaText.Length)
-                                                                                                       .Insert(text.StartIndex + count, text.VietText);
+                                                    .Insert(text.StartIndex + count, text.VietText);
                         count += (text.VietText.Length - text.ChinaText.Length);
                     }
                 }

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
@@ -95,25 +96,165 @@ namespace TranslateGame.ViewModel
             OnRefreshUI();
         }
 
-        private void findText()
+        /// <summary>
+        /// The <see cref="TextReFrom" /> property's name.
+        /// </summary>
+        public const string TextReFromPropertyName = "TextReFrom";
+
+        private string _textReFrom = "";
+
+        /// <summary>
+        /// Sets and gets the TextReFrom property.
+        /// Changes to that property's value raise the PropertyChanged event.
+        /// </summary>
+        public string TextReFrom
+        {
+            get
+            {
+                return _textReFrom;
+            }
+
+            set
+            {
+                if (_textReFrom == value)
+                {
+                    return;
+                }
+
+                _textReFrom = value;
+                RaisePropertyChanged(TextReFromPropertyName);
+            }
+        }
+
+        /// <summary>
+        /// The <see cref="TextReTo" /> property's name.
+        /// </summary>
+        public const string TextReToPropertyName = "TextReTo";
+
+        private string _textReTo = "";
+
+        /// <summary>
+        /// Sets and gets the TextReTo property.
+        /// Changes to that property's value raise the PropertyChanged event.
+        /// </summary>
+        public string TextReTo
+        {
+            get
+            {
+                return _textReTo;
+            }
+
+            set
+            {
+                if (_textReTo == value)
+                {
+                    return;
+                }
+
+                _textReTo = value;
+                RaisePropertyChanged(TextReToPropertyName);
+            }
+        }
+
+        private RelayCommand _replaceTextCommand;
+
+        /// <summary>
+        /// Gets the ReplaceTextCommand.
+        /// </summary>
+        public RelayCommand ReplaceTextCommand
+        {
+            get
+            {
+                return _replaceTextCommand
+                    ?? (_replaceTextCommand = new RelayCommand(
+                    () =>
+                    {
+                        int count = 0;
+                        if (IsWorkForAll)
+                        {
+                            foreach (var json in Jsons)
+                            {
+                                foreach (TextModel text in json.ListText)
+                                {
+                                    if (text.VietText.Contains(TextReFrom))
+                                    {
+                                        text.VietText = text.VietText.Replace(TextReFrom, TextReTo);
+                                        count++;
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            foreach (TextModel text in JsonSelected.ListText)
+                            {
+                                if (text.VietText.Contains(TextReFrom))
+                                {
+                                    text.VietText = text.VietText.Replace(TextReFrom, TextReTo);
+                                    count++;
+                                }
+                            }
+                        }
+                        Message = "Đã thay thế được " + count + " lần.";
+                        RaisePropertyChanged(JsonsPropertyName);
+                    }));
+            }
+        }
+
+        private int _indexJsonFinded = 0;
+        private int _indexTextFinded = 0;
+
+        private RelayCommand _findNextCommand;
+
+        /// <summary>
+        /// Gets the FindNextCommand.
+        /// </summary>
+        public RelayCommand FindNextCommand
+        {
+            get
+            {
+                return _findNextCommand
+                    ?? (_findNextCommand = new RelayCommand(
+                    () =>
+                    {
+                        findText(_indexJsonFinded, _indexTextFinded + 1);
+                    }));
+            }
+        }
+
+        private void findText(int indexJsonFinded = 0, int indexTextFinded = 0)
         {
             if (IsWorkForAll)
             {
                 bool isFindJson = false;
-                foreach (JsonModel json in Jsons)
+                for (int i = indexJsonFinded; i < Jsons.Count; i++)
                 {
-                    foreach (TextModel textM in json.ListText)
+                    for (int j = indexTextFinded; j < Jsons[i].ListText.Count; j++)
                     {
-                        bool isFinded = textM.VietText.Contains(TextForFind);
+                        bool isFinded;
+                        if (IsExactly)
+                            if (Jsons[i].ListText[j].VietText.ToLower() == TextForFind.ToLower())
+                            {
+                                isFinded = true;
+                            }
+                            else
+                                isFinded = false;
+                        else
+                        {
+                            string vietText = Jsons[i].ListText[j].VietText.ToLower();
+                            string text = TextForFind.ToLower();
+                            isFinded = vietText.Contains(text);
+                        }
 
                         if (!isFinded)
                             continue;
                         else
                         {
-                            JsonSelected = json;
-
-                            SelectText = textM;
-                            MessengerInstance.Send<TextModel>(textM, "doScrollToView");
+                            JsonSelected = Jsons[i];
+                            _indexJsonFinded = i;
+                            _indexTextFinded = j;
+                            SelectText = Jsons[i].ListText[j];
+                            MessengerInstance.Send<TextModel>(Jsons[i].ListText[j], "doScrollToView");
                             isFindJson = true;
                             break;
                         }
@@ -128,8 +269,18 @@ namespace TranslateGame.ViewModel
             {
                 foreach (TextModel textM in Texts)
                 {
-                    bool isFinded = textM.VietText.Contains(TextForFind);
-
+                    bool isFinded;
+                    if (IsExactly)
+                        if (textM.VietText.ToLower() == TextForFind.ToLower())
+                            isFinded = true;
+                        else
+                            isFinded = false;
+                    else
+                    {
+                        string vietText = textM.VietText.ToLower();
+                        string text = TextForFind.ToLower();
+                        isFinded = vietText.Contains(text);
+                    }
                     if (!isFinded)
                         continue;
                     else
@@ -149,8 +300,8 @@ namespace TranslateGame.ViewModel
             {
                 Texts.Add(m);
             });
-            FromSelect = Texts[0];
-            ToSelect = Texts[Texts.Count - 1];
+            FromSelect = 0;
+            ToSelect = Texts.Count - 1;
         }
 
         private string MergeTextChina(JsonModel jsonModel)
@@ -222,6 +373,7 @@ namespace TranslateGame.ViewModel
             SelectText.VietText = this.SelectText.VietPharseText;
             OnRefreshUI();
         }
+
         /// <summary>
         /// The <see cref="SelectNhap" /> property's name.
         /// </summary>
@@ -231,7 +383,7 @@ namespace TranslateGame.ViewModel
 
         /// <summary>
         /// Sets and gets the SelectNhap property.
-        /// Changes to that property's value raise the PropertyChanged event. 
+        /// Changes to that property's value raise the PropertyChanged event.
         /// </summary>
         public string SelectNhap
         {
@@ -403,7 +555,6 @@ namespace TranslateGame.ViewModel
         {
             get
             {
-
                 return _convertOptionCommand
                     ?? (_convertOptionCommand = new RelayCommand(
                     () =>
@@ -415,7 +566,7 @@ namespace TranslateGame.ViewModel
                                 json.IsChangeTxt = true;
                                 json.IsChangeJson = true;
                                 int IndexFrom = 0;
-                                int IndexTo = json.ListText.Count -1;
+                                int IndexTo = json.ListText.Count - 1;
                                 string text = "";
                                 for (int i = IndexFrom; i <= IndexTo; i++)
                                 {
@@ -443,8 +594,8 @@ namespace TranslateGame.ViewModel
                             JsonSelected.IsChangeJson = true;
                             JsonSelected.IsChangeTxt = true;
                             //lay index from and to
-                            int IndexFrom = Texts.IndexOf(FromSelect);
-                            int IndexTo = Texts.IndexOf(ToSelect);
+                            int IndexFrom = FromSelect;
+                            int IndexTo = ToSelect;
                             string text = "";
                             for (int i = IndexFrom; i <= IndexTo; i++)
                             {
@@ -480,27 +631,7 @@ namespace TranslateGame.ViewModel
                     ?? (_convertToFileCommand = new RelayCommand(
                     () =>
                     {
-                        Regex regex = new Regex("[\u4E00-\u9FA5]");
-                        string oldPath = "";
-                        int count = 0;
-                        string content = "";
-                        List<JsonModel> jsonNeedSaved = new List<JsonModel>();
-                        foreach (JsonModel json in Jsons)
-                        {
-                            if (json.IsChangeTxt)
-                            {
-                                jsonNeedSaved.Add(json);
-                                json.IsChangeTxt = false;
-                            }
-                        }
-                        if (jsonNeedSaved.Count == 0)
-                        {
-                            Message = "Chưa có file nào được chỉnh sửa nên không lưu được";
-                            return;
-                        }
-                        _dataService.ConvertListJsonToFiles(jsonNeedSaved);
-
-                        SaveDataCommand.Execute(null);
+                        workerConvertToFile.RunWorkerAsync();
                     }));
             }
         }
@@ -534,25 +665,6 @@ namespace TranslateGame.ViewModel
                     {
                         worker.RunWorkerAsync(_files);
                     }));
-            }
-        }
-
-        public TextModel FromSelect
-        {
-            get
-            {
-                return _fromSelect;
-            }
-
-            set
-            {
-                if (_fromSelect == value)
-                {
-                    return;
-                }
-
-                _fromSelect = value;
-                RaisePropertyChanged(FromSelectPropertyName);
             }
         }
 
@@ -817,7 +929,48 @@ namespace TranslateGame.ViewModel
             }
         }
 
-        public TextModel ToSelect
+        /// <summary>
+        /// The <see cref="FromSelect" /> property's name.
+        /// </summary>
+        public const string FromSelectPropertyName = "FromSelect";
+
+        private int _fromSelect = 0;
+
+        /// <summary>
+        /// Sets and gets the FromSelect property.
+        /// Changes to that property's value raise the PropertyChanged event.
+        /// </summary>
+        public int FromSelect
+        {
+            get
+            {
+                return _fromSelect;
+            }
+
+            set
+            {
+                if (_fromSelect == value)
+                {
+                    return;
+                }
+
+                _fromSelect = value;
+                RaisePropertyChanged(FromSelectPropertyName);
+            }
+        }
+
+        /// <summary>
+        /// The <see cref="ToSelect" /> property's name.
+        /// </summary>
+        public const string ToSelectPropertyName = "ToSelect";
+
+        private int _toSelect = 0;
+
+        /// <summary>
+        /// Sets and gets the ToSelect property.
+        /// Changes to that property's value raise the PropertyChanged event.
+        /// </summary>
+        public int ToSelect
         {
             get
             {
@@ -840,7 +993,6 @@ namespace TranslateGame.ViewModel
         {
             get
             {
-
                 return _translateCommand
                     ?? (_translateCommand = new RelayCommand(
                     () =>
@@ -881,22 +1033,22 @@ namespace TranslateGame.ViewModel
                                     tranedGoogle.Add(item.Trim());
                                 }
                             }
-                             _dataService.TranslateVietPharse(textChinas, (vietphare, hanviet) =>
-                             {
-                                 tranedVietPhare = vietphare;
-                                 tranedHanViet = hanviet;
-                                 for (int i = 0; i < JsonSelected.ListText.Count; i++)
-                                 {
-                                     if (IsCopyedGoogle)
-                                     {
-                                         JsonSelected.ListText[i].GoogleText = UpperFirstText(tranedGoogle[i].Trim());
-                                     }
+                            _dataService.TranslateVietPharse(textChinas, (vietphare, hanviet) =>
+                            {
+                                tranedVietPhare = vietphare;
+                                tranedHanViet = hanviet;
+                                for (int i = 0; i < JsonSelected.ListText.Count; i++)
+                                {
+                                    if (IsCopyedGoogle)
+                                    {
+                                        JsonSelected.ListText[i].GoogleText = UpperFirstText(tranedGoogle[i].Trim());
+                                    }
 
-                                     JsonSelected.ListText[i].VietPharseText = UpperFirstText(tranedVietPhare[i].Trim());
-                                     JsonSelected.ListText[i].HanVietText = UpperFirstText(tranedHanViet[i].Trim());
-                                 }
-                                 Message = "File " + JsonSelected.Name + " dịch xong";
-                             });
+                                    JsonSelected.ListText[i].VietPharseText = UpperFirstText(tranedVietPhare[i].Trim());
+                                    JsonSelected.ListText[i].HanVietText = UpperFirstText(tranedHanViet[i].Trim());
+                                }
+                                Message = "File " + JsonSelected.Name + " dịch xong";
+                            });
                         }
 
                         RaisePropertyChanged(TextsPropertyName);
@@ -983,7 +1135,6 @@ namespace TranslateGame.ViewModel
 
         public const string CheckBoxGroupPropertyName = "CheckBoxGroup";
         public const string CountFilePropertyName = "CountFile";
-        public const string FromSelectPropertyName = "FromSelect";
 
         public const string IsTranslatePropertyName = "IsTranslate";
         public const string JsonSelectedPropertyName = "JsonSelected";
@@ -995,7 +1146,6 @@ namespace TranslateGame.ViewModel
         public const string TextForFindPropertyName = "TextForFind";
 
         public const string TextsPropertyName = "Texts";
-        public const string ToSelectPropertyName = "ToSelect";
         public bool IsFindFocus = false;
         private readonly IDataService _dataService;
         private RelayCommand _allToHanVietCommand;
@@ -1008,7 +1158,6 @@ namespace TranslateGame.ViewModel
         private int _countFile = 0;
         private string[] _files;
         private RelayCommand _findTextChinaCommand;
-        private TextModel _fromSelect = null;
 
         private ObservableCollection<JsonModel> _jsons = null;
         private JsonModel _jsonSelected = null;
@@ -1026,7 +1175,6 @@ namespace TranslateGame.ViewModel
         private string _textChinas = "";
         private string _textForFind = "";
         private ObservableCollection<TextModel> _texts = null;
-        private TextModel _toSelect = null;
         private RelayCommand _translateCommand;
         private RelayCommand<KeyEventArgs> _windowKeyDownCommand;
         private int CountToSave = 0;
@@ -1065,6 +1213,8 @@ namespace TranslateGame.ViewModel
             }
         }
 
+        private BackgroundWorker workerConvertToFile;
+
         public MainViewModel(IDataService dataService)
         {
             _dataService = dataService;
@@ -1095,6 +1245,118 @@ namespace TranslateGame.ViewModel
             worker.ProgressChanged += Worker_ProgressChanged;
             worker.DoWork += Worker_DoWork;
             worker.RunWorkerCompleted += Worker_RunWorkerCompleted;
+            workerConvertToFile = new BackgroundWorker();
+            workerConvertToFile.WorkerReportsProgress = true;
+            workerConvertToFile.ProgressChanged += WorkerConvertToFile_ProgressChanged;
+            workerConvertToFile.DoWork += WorkerConvertToFile_DoWork;
+            workerConvertToFile.RunWorkerCompleted += WorkerConvertToFile_RunWorkerCompleted;
+
+            Messenger.Default.Register<ObservableCollection<TextModel>>(this, "onUpdateTexts", onUpdateTexts);
+        }
+
+        private void WorkerConvertToFile_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            SaveDataCommand.Execute(null);
+            Message = "Hoàn thành";
+        }
+
+        private void onUpdateTexts(ObservableCollection<TextModel> texts)
+        {
+            foreach (TextModel text in texts)
+            {
+                JsonSelected.ListText.First(d => d.STT == text.STT).VietText = text.VietText;
+            }
+            RaisePropertyChanged(TextsPropertyName);
+            OnRefreshUI();
+            JsonSelected.IsChangeJson = true;
+        }
+
+        private void WorkerConvertToFile_DoWork(object sender, DoWorkEventArgs e)
+        {
+            Regex regex = new Regex("[\u4E00-\u9FA5]");
+            List<JsonModel> jsonNeedSaved = new List<JsonModel>();
+            foreach (JsonModel json in Jsons)
+            {
+                if (json.IsChangeTxt)
+                {
+                    jsonNeedSaved.Add(json);
+                    json.IsChangeTxt = false;
+                }
+            }
+            if (jsonNeedSaved.Count == 0)
+            {
+                Message = "Chưa có file nào được chỉnh sửa nên không lưu được";
+                return;
+            }
+            _dataService.ConvertListJsonToFiles(jsonNeedSaved, m =>
+            {
+                (sender as BackgroundWorker).ReportProgress(1, m);
+            });
+        }
+
+        /// <summary>
+        /// The <see cref="IsExactly" /> property's name.
+        /// </summary>
+        public const string IsExactlyPropertyName = "IsExactly";
+
+        private bool _isExactly = false;
+
+        /// <summary>
+        /// Sets and gets the IsExactly property.
+        /// Changes to that property's value raise the PropertyChanged event.
+        /// </summary>
+        public bool IsExactly
+        {
+            get
+            {
+                return _isExactly;
+            }
+
+            set
+            {
+                if (_isExactly == value)
+                {
+                    return;
+                }
+
+                _isExactly = value;
+                RaisePropertyChanged(IsExactlyPropertyName);
+            }
+        }
+
+        /// <summary>
+        /// The <see cref="IndexFrom" /> property's name.
+        /// </summary>
+        public const string IndexFromPropertyName = "IndexFrom";
+
+        private int _indexFrom = 0;
+
+        /// <summary>
+        /// Sets and gets the IndexFrom property.
+        /// Changes to that property's value raise the PropertyChanged event.
+        /// </summary>
+        public int IndexFrom
+        {
+            get
+            {
+                return _indexFrom;
+            }
+
+            set
+            {
+                if (_indexFrom == value)
+                {
+                    return;
+                }
+
+                _indexFrom = value;
+                RaisePropertyChanged(IndexFromPropertyName);
+            }
+        }
+
+        private void WorkerConvertToFile_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            Message = "Đang convert file " + e.UserState.ToString();
         }
 
         /// <summary>
@@ -1110,6 +1372,32 @@ namespace TranslateGame.ViewModel
         public const string IsConvertAllPropertyName = "IsConvertAll";
 
         private bool _isConvertAll = false;
+        private RelayCommand _editFileCommand;
+
+        /// <summary>
+        /// Gets the EditFileCommand.
+        /// </summary>
+        public RelayCommand EditFileCommand
+        {
+            get
+            {
+                return _editFileCommand
+                    ?? (_editFileCommand = new RelayCommand(
+                    () =>
+                    {
+                        JsonModel jsonSelected = JsonSelected;
+                        //thuc hien mo file moi
+                        EditFile editFile = new EditFile();
+                        editFile.chkHV.IsChecked = true;
+                        editFile.chkST.IsChecked = true;
+                        EditFileViewModel model = editFile.DataContext as EditFileViewModel;
+                        model.jsonSelected = jsonSelected;
+                        model.OnLoadViewModel();
+
+                        editFile.Show();
+                    }));
+            }
+        }
 
         /// <summary>
         /// Sets and gets the IsConvertAll property.

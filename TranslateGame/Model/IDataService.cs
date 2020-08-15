@@ -16,6 +16,6 @@ namespace TranslateGame.Model
         void LoadObject(Action<List<JsonModel>> callback);
         void SaveJsonToFile(List<TextModel> data);
         void PublishToWeb(ObservableCollection<TextModel> data);
-        void ConvertListJsonToFiles(List<JsonModel> jsonNeedSaved);
+        void ConvertListJsonToFiles(List<JsonModel> jsonNeedSaved, Action<string> callback);
     }
 }

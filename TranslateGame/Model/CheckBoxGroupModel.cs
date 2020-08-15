@@ -14,5 +14,11 @@ namespace TranslateGame.Model
         public bool IsVietPhare { get; set; }
         public bool IsHanViet { get; set; }
         public bool IsGoogle { get; set; }
+        public CheckBoxGroupModel()
+        {
+            IsSampleText = true;
+            IsVietPhare = true;
+        }
+
     }
 }

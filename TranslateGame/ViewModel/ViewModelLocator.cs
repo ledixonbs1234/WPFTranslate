@@ -39,6 +39,7 @@ namespace TranslateGame.ViewModel
             }
 
             SimpleIoc.Default.Register<MainViewModel>();
+            SimpleIoc.Default.Register<EditFileViewModel>();
         }
 
         /// <summary>
@@ -52,6 +53,21 @@ namespace TranslateGame.ViewModel
             get
             {
                 return ServiceLocator.Current.GetInstance<MainViewModel>();
+            }
+        }
+      
+
+        /// <summary>
+        /// Gets the EditFile property.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance",
+            "CA1822:MarkMembersAsStatic",
+            Justification = "This non-static member is needed for data binding purposes.")]
+        public EditFileViewModel EditFile
+        {
+            get
+            {
+                return ServiceLocator.Current.GetInstance<EditFileViewModel>();
             }
         }
 

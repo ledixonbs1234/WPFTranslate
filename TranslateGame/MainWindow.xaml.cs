@@ -32,6 +32,7 @@ namespace TranslateGame
             {
                 txtTranslate.Foreground = Brushes.Red;
                 btnNhap.Background = Brushes.Red;
+                btnReplace.Background = Brushes.Red;
                 btnConvert.Background = Brushes.Red;
             }
             else
@@ -39,6 +40,7 @@ namespace TranslateGame
                 txtTranslate.Foreground = (Brush)new BrushConverter().ConvertFrom("#FF535353");
                 btnNhap.Background = (Brush)new BrushConverter().ConvertFrom("#FF4E96FF");
                 btnConvert.Background = (Brush)new BrushConverter().ConvertFrom("#FF4E96FF");
+                btnReplace.Background = (Brush)new BrushConverter().ConvertFrom("#FF4E96FF");
             }
         }
 

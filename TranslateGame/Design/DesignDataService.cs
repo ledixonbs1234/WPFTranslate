@@ -7,7 +7,7 @@ namespace TranslateGame.Design
 {
     public class DesignDataService :IDataService
     {
-        public void ConvertListJsonToFiles(List<JsonModel> jsonNeedSaved)
+        public void ConvertListJsonToFiles(List<JsonModel> jsonNeedSaved, Action<string> callback)
         {
             throw new NotImplementedException();
         }

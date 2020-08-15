@@ -94,6 +94,9 @@
     </ApplicationDefinition>
     <Compile Include="Converter\BooleanConverterColor.cs" />
     <Compile Include="Design\DesignDataService.cs" />
+    <Compile Include="EditFile.xaml.cs">
+      <DependentUpon>EditFile.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Model\CheckBoxGroupModel.cs" />
     <Compile Include="Model\DataItem.cs" />
     <Compile Include="Model\DataService.cs" />
@@ -101,8 +104,13 @@
     <Compile Include="Model\IndexSelectionModel.cs" />
     <Compile Include="Model\JsonModel.cs" />
     <Compile Include="Model\TextModel.cs" />
+    <Compile Include="ViewModel\EditFileViewModel.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
+    <Page Include="EditFile.xaml">
+      <SubType>Form</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
